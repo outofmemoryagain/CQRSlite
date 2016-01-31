@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Web.Mvc;
+using Microsoft.AspNet.Mvc;
 using CQRSCode.ReadModel;
 using CQRSCode.WriteModel.Commands;
 using CQRSlite.Commands;

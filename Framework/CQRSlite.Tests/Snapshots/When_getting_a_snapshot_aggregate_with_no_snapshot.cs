@@ -2,16 +2,16 @@ using System;
 using CQRSlite.Domain;
 using CQRSlite.Snapshots;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Snapshots
 {
-	[TestFixture]
+	
     public class When_getting_a_snapshot_aggregate_with_no_snapshot
     {
         private TestSnapshotAggregate _aggregate;
 
-		[SetUp]
+		
         public void Setup()
         {
             var eventStore = new TestEventStore();
@@ -32,15 +32,17 @@ namespace CQRSlite.Tests.Snapshots
             public void Save(Snapshot snapshot){}
 	    }
 
-	    [Test]
+	    [Fact]
         public void Should_load_events()
         {
+            Setup();
             Assert.True(_aggregate.Loaded);
         }
 
-        [Test]
+        [Fact]
         public void Should_not_load_snapshot()
         {
+            Setup();
             Assert.False(_aggregate.Restored);
         }
     }

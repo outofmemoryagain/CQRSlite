@@ -6,11 +6,11 @@ using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Events;
 using CQRSlite.Snapshots;
-using NUnit.Framework;
+//using NUnit.Framework;
 
 namespace CQRSlite.Tests.Extensions.TestHelpers
 {
-	[TestFixture]
+	
     public abstract class Specification<TAggregate, THandler, TCommand> 
         where TAggregate: AggregateRoot
         where THandler : class, ICommandHandler<TCommand>
@@ -27,8 +27,8 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
         protected IList<IEvent> EventDescriptors { get; set; }
         protected IList<IEvent> PublishedEvents { get; set; }
 		
-        [SetUp]
-        public void Run()
+        
+        public Specification()
         {
             var eventstorage = new SpecEventStorage(Given().ToList());
             var snapshotstorage = new SpecSnapShotStorage(Snapshot);

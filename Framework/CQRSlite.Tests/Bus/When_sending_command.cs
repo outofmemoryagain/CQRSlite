@@ -1,45 +1,47 @@
 using System;
 using CQRSlite.Bus;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Bus
 {
-	[TestFixture]
+	
     public class When_sending_command
     {
-        private InProcessBus _bus;
+        //private InProcessBus _bus;
+        
+        //public When_sending_command()
+        //{
+        //    _bus = new InProcessBus();
+        //}
 
-		[SetUp]
-        public void Setup()
-        {
-            _bus = new InProcessBus();
-        }
-
-        [Test]
+        [Fact]
         public void Should_run_handler()
         {
+            var bus = new InProcessBus();
             var handler = new TestAggregateDoSomethingHandler();
-            _bus.RegisterHandler<TestAggregateDoSomething>(handler.Handle);
-            _bus.Send(new TestAggregateDoSomething());
+            bus.RegisterHandler<TestAggregateDoSomething>(handler.Handle);
+            bus.Send(new TestAggregateDoSomething());
 
-            Assert.AreEqual(1,handler.TimesRun);
+            Assert.Equal(1,handler.TimesRun);
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_if_more_handlers()
         {
+            var bus = new InProcessBus();
             var x = new TestAggregateDoSomethingHandler();
-            _bus.RegisterHandler<TestAggregateDoSomething>(x.Handle);
-            _bus.RegisterHandler<TestAggregateDoSomething>(x.Handle);
+            bus.RegisterHandler<TestAggregateDoSomething>(x.Handle);
+            bus.RegisterHandler<TestAggregateDoSomething>(x.Handle);
 
-            Assert.Throws<InvalidOperationException>(() => _bus.Send(new TestAggregateDoSomething()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new TestAggregateDoSomething()));
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_if_no_handlers()
         {
-            Assert.Throws<InvalidOperationException>(() => _bus.Send(new TestAggregateDoSomething()));
+            var bus = new InProcessBus();
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new TestAggregateDoSomething()));
         }
     }
 }

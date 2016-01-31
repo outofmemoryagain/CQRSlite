@@ -2,16 +2,16 @@
 using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Domain
 {
-	[TestFixture]
+	
     public class When_getting_an_aggregate
     {
 	    private ISession _session;
 
-	    [SetUp]
+	    
         public void Setup()
         {
             var eventStore = new TestEventStore();
@@ -19,66 +19,74 @@ namespace CQRSlite.Tests.Domain
             _session = new Session(new Repository(eventStore, testEventPublisher));
         }
 
-        [Test]
+        [Fact]
         public void Should_get_aggregate_from_eventstore()
         {
+            Setup();
             var aggregate = _session.Get<TestAggregate>(Guid.NewGuid());
             Assert.NotNull(aggregate);
         }
 
-        [Test]
+        [Fact]
         public void Should_apply_events()
         {
+            Setup();
             var aggregate = _session.Get<TestAggregate>(Guid.NewGuid());
-            Assert.AreEqual(2,aggregate.DidSomethingCount);
+            Assert.Equal(2,aggregate.DidSomethingCount);
         }
 
-        [Test]
+        [Fact]
         public void Should_fail_if_aggregate_do_not_exist()
         {
+            Setup();
             Assert.Throws<AggregateNotFoundException>(() => _session.Get<TestAggregate>(Guid.Empty));
         }
 
-        [Test]
+        [Fact]
 	    public void Should_track_changes()
 	    {
+            Setup();
             var agg = new TestAggregate(Guid.NewGuid());
             _session.Add(agg);
             var aggregate = _session.Get<TestAggregate>(agg.Id);
-            Assert.AreEqual(agg,aggregate);
+            Assert.Equal(agg,aggregate);
 	    }
 
-        [Test]
+        [Fact]
         public void Should_get_from_session_if_tracked()
         {
+            Setup();
             var id = Guid.NewGuid();
             var aggregate = _session.Get<TestAggregate>(id);
             var aggregate2 = _session.Get<TestAggregate>(id);
 
-            Assert.AreEqual(aggregate, aggregate2);
+            Assert.Equal(aggregate, aggregate2);
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_concurrency_exception_if_tracked()
         {
+            Setup();
             var id = Guid.NewGuid();
             _session.Get<TestAggregate>(id);
 
             Assert.Throws<ConcurrencyException>(() => _session.Get<TestAggregate>(id, 100));
         }
 
-        [Test]
+        [Fact]
         public void Should_get_correct_version()
         {
+            Setup();
             var id = Guid.NewGuid();
             var aggregate = _session.Get<TestAggregate>(id);
 
-            Assert.AreEqual(3,aggregate.Version);
+            Assert.Equal(3,aggregate.Version);
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_concurrency_exception()
         {
+            Setup();
             var id = Guid.NewGuid();
             Assert.Throws<ConcurrencyException>(() => _session.Get<TestAggregate>(id, 1));
         }

@@ -3,11 +3,11 @@ using System.Linq;
 using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Domain
 {
-	[TestFixture]
+	
     public class When_saving
     {
         private TestInMemoryEventStore _eventStore;
@@ -16,7 +16,7 @@ namespace CQRSlite.Tests.Domain
 	    private ISession _session;
 	    private Repository _rep;
 
-	    [SetUp]
+	    
         public void Setup()
         {
             _eventStore = new TestInMemoryEventStore();
@@ -27,80 +27,88 @@ namespace CQRSlite.Tests.Domain
             _aggregate = new TestAggregateNoParameterLessConstructor(2);
         }
 
-        [Test]
+        [Fact]
         public void Should_save_uncommited_changes()
         {
+            Setup();
             _aggregate.DoSomething();
             _session.Add(_aggregate);
             _session.Commit();
-            Assert.AreEqual(1, _eventStore.Events.Count);
+            Assert.Equal(1, _eventStore.Events.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_mark_commited_after_commit()
         {
+            Setup();
             _aggregate.DoSomething();
             _session.Add(_aggregate);
             _session.Commit();
-            Assert.AreEqual(0, _aggregate.GetUncommittedChanges().Count());
+            Assert.Equal(0, _aggregate.GetUncommittedChanges().Count());
         }
         
-        [Test]
+        [Fact]
         public void Should_publish_events()
         {
+            Setup();
             _aggregate.DoSomething();
             _session.Add(_aggregate);
             _session.Commit();
-            Assert.AreEqual(1, _eventPublisher.Published);
+            Assert.Equal(1, _eventPublisher.Published);
         }
 
-        [Test]
+        [Fact]
         public void Should_add_new_aggregate()
         {
+            Setup();
             var agg = new TestAggregateNoParameterLessConstructor(1);
             agg.DoSomething();
             _session.Add(agg);
             _session.Commit();
-            Assert.AreEqual(1, _eventStore.Events.Count);
+            Assert.Equal(1, _eventStore.Events.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_set_date()
         {
+            Setup();
             var agg = new TestAggregateNoParameterLessConstructor(1);
             agg.DoSomething();
             _session.Add(agg);
             _session.Commit();
-            Assert.That(_eventStore.Events.First().TimeStamp, Is.InRange(DateTimeOffset.UtcNow.AddSeconds(-1), DateTimeOffset.UtcNow.AddSeconds(1)));
+            Assert.InRange(_eventStore.Events.First().TimeStamp, DateTimeOffset.UtcNow.AddSeconds(-1), DateTimeOffset.UtcNow.AddSeconds(1));
         }
 
-        [Test]
+        [Fact]
         public void Should_set_version()
         {
+            Setup();
             var agg = new TestAggregateNoParameterLessConstructor(1);
             agg.DoSomething();
             agg.DoSomething();
             _session.Add(agg);
             _session.Commit();
-            Assert.That(_eventStore.Events.First().Version, Is.EqualTo(1));
-            Assert.That(_eventStore.Events.Last().Version, Is.EqualTo(2));
+            Assert.Equal(_eventStore.Events.First().Version, 1);
+            Assert.Equal(_eventStore.Events.Last().Version, 2);
 
         }
 
-        [Test]
+        [Fact]
         public void Should_set_id()
         {
+            Setup();
             var id = Guid.NewGuid();
             var agg = new TestAggregateNoParameterLessConstructor(1, id);
             agg.DoSomething();
             _session.Add(agg);
             _session.Commit();
-            Assert.That(_eventStore.Events.First().Id, Is.EqualTo(id));
+            Assert.Equal(_eventStore.Events.First().Id, id);
         }
 
-        [Test]
+        [Fact]
         public void Should_clear_tracked_aggregates()
         {
+            Setup();
             var agg = new TestAggregate(Guid.NewGuid());
             _session.Add(agg);
             agg.DoSomething();

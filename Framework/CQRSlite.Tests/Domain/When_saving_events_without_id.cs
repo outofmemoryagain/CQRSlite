@@ -2,11 +2,11 @@
 using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Domain
 {
-    [TestFixture]
+    
     public class When_saving_events_without_id
     {
         private TestInMemoryEventStore _eventStore;
@@ -14,7 +14,7 @@ namespace CQRSlite.Tests.Domain
         private TestEventPublisher _eventPublisher;
         private Repository _rep;
 
-        [SetUp]
+        
         public void Setup()
         {
             _eventStore = new TestInMemoryEventStore();
@@ -24,9 +24,10 @@ namespace CQRSlite.Tests.Domain
             _aggregate = new TestAggregate(Guid.Empty);
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_aggregate_or_event_missing_id_exception_from_repository()
         {
+            Setup();
             Assert.Throws<AggregateOrEventMissingIdException>(() => _rep.Save(_aggregate, 0));
         }
     }

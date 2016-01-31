@@ -1,19 +1,20 @@
 ﻿using System;
 using CQRSlite.Cache;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
+using CQRSlite.Tests.Extensions;
 
 namespace CQRSlite.Tests.Cache
 {
-    [TestFixture]
+    
     public class When_saving_aggregate
     {
         private CacheRepository _rep;
         private TestAggregate _aggregate;
         private TestRepository _testRep;
 
-        [SetUp]
-        public void Setup()
+        
+        public When_saving_aggregate()
         {
             _testRep = new TestRepository();
             _rep = new CacheRepository(_testRep, new TestInMemoryEventStore());
@@ -22,25 +23,25 @@ namespace CQRSlite.Tests.Cache
             _rep.Save(_aggregate,-1);
         }
 
-        [Test]
+        [Fact]
         public void Should_get_same_aggregate_on_get()
         {
             var aggregate = _rep.Get<TestAggregate>(_aggregate.Id);
-            Assert.That(aggregate, Is.EqualTo(_aggregate));
+            Assert.Equal(aggregate, _aggregate);
         }
 
-        [Test]
+        [Fact]
         public void Should_save_to_repository()
         {
-            Assert.That(_testRep.Saved, Is.EqualTo(_aggregate));
+            Assert.Equal(_testRep.Saved, _aggregate);
         }
 
-        [Test]
+        [Fact]
         public void Should_not_cache_empty_id()
         {
             var aggregate = new TestAggregate(Guid.Empty);
             _rep.Save(aggregate);
-            Assert.That(_rep.Get<TestAggregate>(Guid.Empty), Is.Not.EqualTo(aggregate));
+            Assert.NotEqual(_rep.Get<TestAggregate>(Guid.Empty), aggregate);
         }
     }
 }

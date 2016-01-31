@@ -1,16 +1,16 @@
 ﻿using CQRSlite.Domain;
 using CQRSlite.Snapshots;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Snapshots
 {
-	[TestFixture]
+	
     public class When_saving_a_snapshotable_aggregate
     {
         private TestSnapshotStore _snapshotStore;
 
-		[SetUp]
+		
         public void Setup()
         {
             var eventStore = new TestInMemoryEventStore();
@@ -28,16 +28,18 @@ namespace CQRSlite.Tests.Snapshots
 		    session.Commit();
         }
 
-        [Test]
+        [Fact]
         public void Should_save_snapshot()
         {
+            Setup();
             Assert.True(_snapshotStore.VerifySave);
         }
 
-        [Test]
+        [Fact]
         public void Should_save_last_version_number()
         {
-            Assert.AreEqual(30, _snapshotStore.SavedVersion);
+            Setup();
+            Assert.Equal(30, _snapshotStore.SavedVersion);
         }
     }
 }

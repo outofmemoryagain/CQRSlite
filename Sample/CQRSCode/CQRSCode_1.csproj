@@ -65,12 +65,6 @@
     <Compile Include="ReadModel\IReadModelFacade.cs" />
     <Compile Include="ReadModel\ReadModelFacade.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Framework\CQRSlite\CQRSlite.csproj">
-      <Project>{DAFD2A8A-D6B0-4433-8DDF-B98460C64EC6}</Project>
-      <Name>CQRSlite</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

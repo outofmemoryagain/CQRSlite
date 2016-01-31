@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 
 namespace CQRSlite.Tests.Extensions.TestHelpers
 {
-    public class ThenAttribute : TestAttribute
+    public class ThenAttribute : FactAttribute
     {
     }
 }

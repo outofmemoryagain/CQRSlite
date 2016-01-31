@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 using CQRSlite.Cache;
 using CQRSlite.Domain;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CQRSlite.Tests.Cache
 {
@@ -16,14 +16,9 @@ namespace CQRSlite.Tests.Cache
         private TestAggregate _aggregate;
         private TestInMemoryEventStore _testStore;
 
-        [SetUp]
-        public void Setup()
-        {
-            // This will clear the cache between runs.
-            var cacheKeys = MemoryCache.Default.Select(kvp => kvp.Key).ToList();
-            foreach (var cacheKey in cacheKeys)
-                MemoryCache.Default.Remove(cacheKey);
-
+        
+        public void SetupTest()
+        {            
             _testStore = new TestInMemoryEventStore();
             _rep1 = new CacheRepository(new Repository(_testStore,new TestEventPublisher()), _testStore);
             _rep2 = new CacheRepository(new Repository(_testStore,new TestEventPublisher()), _testStore);
@@ -66,16 +61,18 @@ namespace CQRSlite.Tests.Cache
             Task.WaitAll(t1, t2, t3);
         }
 
-        [Test]
+        [Fact]
         public void Should_not_get_more_than_one_event_with_same_id()
         {
-            Assert.That(_testStore.Events.Select(x => x.Version).Distinct().Count(), Is.EqualTo(_testStore.Events.Count));
+            SetupTest();
+            Assert.Equal(_testStore.Events.Select(x => x.Version).Distinct().Count(), _testStore.Events.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_save_all_events()
         {
-            Assert.That(_testStore.Events.Count, Is.EqualTo(301));
+            SetupTest();
+            Assert.Equal(_testStore.Events.Count, 301);
         }
     }
 }

@@ -2,18 +2,18 @@
 using CQRSlite.Events;
 using CQRSlite.Snapshots;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Snapshots
 {
-	[TestFixture]
+	
     public class When_saving_a_snapshotable_aggregate_for_each_change
     {
         private TestInMemorySnapshotStore _snapshotStore;
 	    private ISession _session;
 	    private TestSnapshotAggregate _aggregate;
 
-	    [SetUp]
+	    
         public void Setup()        
 		{
             IEventStore eventStore = new TestInMemoryEventStore();
@@ -32,22 +32,25 @@ namespace CQRSlite.Tests.Snapshots
             }
         }
 
-        [Test]
+        [Fact]
         public void Should_snapshot_15th_change()
         {
-            Assert.AreEqual(15, _snapshotStore.SavedVersion);
+            Setup();
+            Assert.Equal(15, _snapshotStore.SavedVersion);
         }
 
-        [Test]
+        [Fact]
         public void Should_not_snapshot_first_event()
         {
+            Setup();
             Assert.False(_snapshotStore.FirstSaved);
         }
 
-        [Test]
+        [Fact]
         public void Should_get_aggregate_back_correct()
         {
-            Assert.AreEqual(20, _session.Get<TestSnapshotAggregate>(_aggregate.Id).Number);
+            Setup();
+            Assert.Equal(20, _session.Get<TestSnapshotAggregate>(_aggregate.Id).Number);
         }
     }
 }

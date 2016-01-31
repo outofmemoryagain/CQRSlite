@@ -1,6 +1,7 @@
 using System;
 using System.Dynamic;
 using System.Reflection;
+using System.Linq;
 
 namespace CQRSlite.Infrastructure
 {
@@ -12,7 +13,7 @@ namespace CQRSlite.Infrastructure
         internal static object WrapObjectIfNeeded(object o)
         {
             // Don't wrap primitive types, which don't have many interesting internal APIs
-            if (o == null || o.GetType().IsPrimitive || o is string)
+            if (o == null || o.GetType().GetTypeInfo().IsPrimitive || o is string)
                 return o;
 
             return new PrivateReflectionDynamicObject { RealObject = o };
@@ -36,10 +37,34 @@ namespace CQRSlite.Infrastructure
                 argtypes[i] = args[i].GetType();
             while (true)
             {
-                var member = type.GetMethod(name, bindingFlags, null, argtypes, null);
-                if (member != null) return member.Invoke(target, args);
-                if (type.BaseType == null) return null;
-                type = type.BaseType;
+                var methods = type.GetTypeInfo().GetDeclaredMethods(name);
+                if (methods != null)
+                {
+                    var method = methods.Where(m =>
+                    {
+                        var parms = m.GetParameters();
+                        if (parms.Length == args.Length)
+                        {
+                            for (int i = 0; i < parms.Length; i++)
+                            {
+                                if(parms[i].ParameterType != args[i].GetType())
+                                {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    if (method.Count() > 0)
+                    {
+                        return method.First().Invoke(target, args);
+                    }
+                    
+                }
+                if (type.GetTypeInfo().BaseType == null) return null;
+                type = type.GetTypeInfo().BaseType;
             }
         }
     }

@@ -1,0 +1,23 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "CQRSTests Class Library",
+  "authors": [ "Kerry" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "CQRSCode": "1.0.0-*",
+    "CQRSlite": "1.0.0-*",
+    "CQRSlite.Tests.Extensions": "1.0.0-*",
+    "Microsoft.CSharp": "4.0.1-beta-23516",
+    "xunit": "2.1.0",
+    "xunit.runner.dnx": "2.1.0-rc1-build204"
+  },
+
+
+  "frameworks": {
+    "dnx451": { },
+    "dnxcore50": { }
+  }
+}

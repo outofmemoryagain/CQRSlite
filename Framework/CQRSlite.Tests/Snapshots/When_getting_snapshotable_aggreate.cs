@@ -2,17 +2,17 @@
 using CQRSlite.Domain;
 using CQRSlite.Snapshots;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Snapshots
 {
-	[TestFixture]
+	
     public class When_getting_snapshotable_aggreate
     {
         private TestSnapshotStore _snapshotStore;
         private TestSnapshotAggregate _aggregate;
 
-		[SetUp]
+		
         public void Setup()
         {
             var eventStore = new TestInMemoryEventStore();
@@ -25,15 +25,17 @@ namespace CQRSlite.Tests.Snapshots
             _aggregate = session.Get<TestSnapshotAggregate>(Guid.NewGuid());
         }
 
-        [Test]
+        [Fact]
         public void Should_ask_for_snapshot()
         {
+            Setup();
             Assert.True(_snapshotStore.VerifyGet);
         }
 
-        [Test]
+        [Fact]
         public void Should_run_restore_method()
         {
+            Setup();
             Assert.True(_aggregate.Restored);
         }
     }

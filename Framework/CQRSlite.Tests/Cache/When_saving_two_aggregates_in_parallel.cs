@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 using CQRSlite.Cache;
 using CQRSlite.Domain;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Cache
 {
@@ -17,14 +16,10 @@ namespace CQRSlite.Tests.Cache
         private TestInMemoryEventStore _testStore;
         private TestAggregate _aggregate2;
 
-        [SetUp]
-        public void Setup()
+        
+        public void SetupTest()
         {
-            // This will clear the cache between runs.
-            var cacheKeys = MemoryCache.Default.Select(kvp => kvp.Key).ToList();
-            foreach (var cacheKey in cacheKeys)
-                MemoryCache.Default.Remove(cacheKey);
-
+           
             _testStore = new TestInMemoryEventStore();
             _rep1 = new CacheRepository(new Repository(_testStore,new TestEventPublisher()), _testStore);
 
@@ -59,25 +54,28 @@ namespace CQRSlite.Tests.Cache
             Task.WaitAll(t1, t2);
         }
 
-        [Test]
+        [Fact]
         public void Should_not_get_more_than_one_event_with_same_id()
         {
-            Assert.That(_testStore.Events.Select(x => x.Version).Count(), Is.EqualTo(_testStore.Events.Count));
+            SetupTest();
+            Assert.Equal(_testStore.Events.Select(x => x.Version).Count(), _testStore.Events.Count);
         }
 
-        [Test]
+        [Fact]
         public void Should_save_all_events()
         {
-            Assert.That(_testStore.Events.Count(), Is.EqualTo(202));
+            SetupTest();
+            Assert.Equal(_testStore.Events.Count(), 202);
         }
 
-        [Test]
+        [Fact]
         public void Should_distibute_events_correct()
         {
+            SetupTest();
             var aggregate1 = _rep1.Get<TestAggregate>(_aggregate2.Id);
-            Assert.That(aggregate1.DidSomethingCount, Is.EqualTo(100));
+            Assert.Equal(aggregate1.DidSomethingCount, 100);
             var aggregate2 = _rep1.Get<TestAggregate>(_aggregate2.Id);
-            Assert.That(aggregate2.DidSomethingCount, Is.EqualTo(100));
+            Assert.Equal(aggregate2.DidSomethingCount, 100);
         }
     }
 }

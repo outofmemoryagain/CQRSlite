@@ -7,7 +7,7 @@ using CQRSCode.WriteModel.Domain;
 using CQRSCode.WriteModel.Handlers;
 using CQRSlite.Events;
 using CQRSlite.Tests.Extensions.TestHelpers;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSTests.WriteModel
 {
@@ -33,19 +33,19 @@ namespace CQRSTests.WriteModel
         [Then]
         public void Should_create_one_event()
         {
-            Assert.AreEqual(1, PublishedEvents.Count);
+            Assert.Equal(1, PublishedEvents.Count);
         }
 
         [Then]
         public void Should_create_correct_event()
         {
-            Assert.IsInstanceOf<InventoryItemCreated>(PublishedEvents.First());
+            Assert.IsType<InventoryItemCreated>(PublishedEvents.First());
         }
 
         [Then]
         public void Should_save_name()
         {
-            Assert.AreEqual("myname", ((InventoryItemCreated)PublishedEvents.First()).Name);
+            Assert.Equal("myname", ((InventoryItemCreated)PublishedEvents.First()).Name);
         }
     }
 }

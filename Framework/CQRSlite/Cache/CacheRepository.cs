@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Runtime.Caching;
 using CQRSlite.Domain;
 using CQRSlite.Events;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CQRSlite.Cache
 {
@@ -11,8 +11,8 @@ namespace CQRSlite.Cache
     {
         private readonly IRepository _repository;
         private readonly IEventStore _eventStore;
-        private readonly MemoryCache _cache;
-        private readonly Func<CacheItemPolicy> _policyFactory;
+        public static readonly MemoryCache Cache = new MemoryCache(new MemoryCacheOptions());
+        readonly MemoryCacheEntryOptions _cacheOptions;
         private static readonly ConcurrentDictionary<string, object> _locks = new ConcurrentDictionary<string, object>();
 
         public CacheRepository(IRepository repository, IEventStore eventStore)
@@ -24,16 +24,16 @@ namespace CQRSlite.Cache
 
             _repository = repository;
             _eventStore = eventStore;
-            _cache = MemoryCache.Default;
-            _policyFactory = () => new CacheItemPolicy
+
+            _cacheOptions = new MemoryCacheEntryOptions
             {
-                SlidingExpiration = new TimeSpan(0, 0, 15, 0),
-                RemovedCallback = x =>
-                {
-                    object o;
-                    _locks.TryRemove(x.CacheItem.Key, out o);
-                }
+                SlidingExpiration = new TimeSpan(0, 0, 15, 0)
             };
+            _cacheOptions.RegisterPostEvictionCallback((key, value, reason, state) =>
+            {
+                object o;
+                _locks.TryRemove(key.ToString(), out o);
+            });
         }
 
         public void Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
@@ -44,7 +44,7 @@ namespace CQRSlite.Cache
                 lock (_locks.GetOrAdd(idstring, _ => new object()))
                 {
                     if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
-                        _cache.Add(idstring, aggregate, _policyFactory.Invoke());
+                        Cache.Set(idstring, aggregate, _cacheOptions);
                     _repository.Save(aggregate, expectedVersion);
                 }
             }
@@ -52,7 +52,7 @@ namespace CQRSlite.Cache
             {
                 lock (_locks.GetOrAdd(idstring, _ => new object()))
                 {
-                    _cache.Remove(idstring);
+                    Cache.Remove(idstring);
                 }
                 throw;
             }
@@ -68,11 +68,11 @@ namespace CQRSlite.Cache
                     T aggregate;
                     if (IsTracked(aggregateId))
                     {
-                        aggregate = (T) _cache.Get(idstring);
+                        aggregate = (T) Cache.Get(idstring);
                         var events = _eventStore.Get(aggregateId, aggregate.Version);
                         if (events.Any() && events.First().Version != aggregate.Version + 1)
                         {
-                            _cache.Remove(idstring);
+                            Cache.Remove(idstring);
                         }
                         else
                         {
@@ -82,7 +82,7 @@ namespace CQRSlite.Cache
                     }
 
                     aggregate = _repository.Get<T>(aggregateId);
-                    _cache.Add(aggregateId.ToString(), aggregate, _policyFactory.Invoke());
+                    Cache.Set(idstring, aggregate, _cacheOptions);
                     return aggregate;
                 }
             }
@@ -90,7 +90,7 @@ namespace CQRSlite.Cache
             {
                 lock (_locks.GetOrAdd(idstring, _ => new object()))
                 {
-                    _cache.Remove(idstring);
+                    Cache.Remove(idstring);
                 }
                 throw;
             }
@@ -98,7 +98,8 @@ namespace CQRSlite.Cache
 
         private bool IsTracked(Guid id)
         {
-            return _cache.Contains(id.ToString());
+            object output;
+            return Cache.TryGetValue(id.ToString(), out output);
         }
     }
 }

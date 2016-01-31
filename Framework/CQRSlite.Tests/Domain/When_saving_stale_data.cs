@@ -2,11 +2,11 @@
 using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Tests.Substitutes;
-using NUnit.Framework;
+using Xunit;
 
 namespace CQRSlite.Tests.Domain
 {
-    [TestFixture]
+    
     public class When_saving_stale_data
     {
         private TestInMemoryEventStore _eventStore;
@@ -15,7 +15,7 @@ namespace CQRSlite.Tests.Domain
         private Repository _rep;
         private Session _session;
 
-        [SetUp]
+        
         public void Setup()
         {
             _eventStore = new TestInMemoryEventStore();
@@ -28,15 +28,17 @@ namespace CQRSlite.Tests.Domain
             _rep.Save(_aggregate);
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_concurrency_exception_from_repository()
         {
+            Setup();
             Assert.Throws<ConcurrencyException>(() => _rep.Save(_aggregate, 0));
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_concurrency_exception_from_session()
         {
+            Setup();
             _session.Add(_aggregate);
             _aggregate.DoSomething();
             _rep.Save(_aggregate);

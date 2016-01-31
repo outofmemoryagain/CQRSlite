@@ -1,0 +1,19 @@
+﻿{
+  "authors": [ "Kerry" ],
+  "dependencies": {
+    "Microsoft.Extensions.Caching.Memory": "1.0.0-rc2-16027",
+    "Microsoft.CSharp": "4.0.1-beta-23516",
+    "System.Collections": "4.0.11-beta-23516",
+    "System.Collections.Concurrent": "4.0.11-beta-23516"
+  },
+
+  "description": "CqrsLite Class Library",
+  "frameworks": {
+    "dnx451": { },
+    "dnxcore50": { }
+  },
+  "licenseUrl": "",
+  "projectUrl": "",
+  "tags": [ "" ],
+  "version": "1.0.0-*"
+}
